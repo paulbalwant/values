@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schwartz Values Exercise</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #4a5f85 0%, #2c3e50 50%, #34495e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #2c3e50;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 70px rgba(0,0,0,0.25);
+        }
+        
+        h1 {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .instructions {
+            background: linear-gradient(135deg, #e8f4f8 0%, #d4e9f2 100%);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.1);
+        }
+        
+        .instructions p {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        
+        .progress {
+            margin-bottom: 25px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 16px;
+            padding: 15px;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #dee2e6;
+        }
+        
+        .values-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+        
+        .value-item {
+            padding: 16px;
+            border: 2.5px solid #dee2e6;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            font-size: 14px;
+            font-weight: 500;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        }
+        
+        .value-item:hover {
+            border-color: #3498db;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 8px 20px rgba(52, 152, 219, 0.25);
+            background: linear-gradient(135deg, #ffffff 0%, #eef6fb 100%);
+        }
+        
+        .value-item.most-important {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border-color: #28a745;
+            border-width: 3px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+        
+        .value-item.least-important {
+            background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%);
+            border-color: #dc3545;
+            border-width: 3px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3);
+        }
+        
+        .value-item.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        
+        .button-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        button {
+            flex: 1;
+            padding: 16px 32px;
+            font-size: 17px;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+            letter-spacing: 0.3px;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+            color: white;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #2980b9 0%, #21618c 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        .reset-btn {
+            background: linear-gradient(135deg, #7f8c8d 0%, #5d6d7e 100%);
+            color: white;
+        }
+        
+        .reset-btn:hover {
+            background: linear-gradient(135deg, #5d6d7e 0%, #34495e 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(127, 140, 141, 0.4);
+        }
+        
+        .results {
+            margin-top: 40px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 16px;
+            border: 3px solid #dee2e6;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .results h2 {
+            background: linear-gradient(135deg, #27ae60, #229954);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 25px;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+        
+        .category-result {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            border-left: 5px solid #3498db;
+            transition: transform 0.2s ease;
+        }
+        
+        .category-result:hover {
+            transform: translateX(5px);
+        }
+        
+        .category-name {
+            font-weight: 700;
+            font-size: 19px;
+            margin-bottom: 10px;
+            color: #2c3e50;
+            letter-spacing: 0.3px;
+        }
+        
+        .category-values {
+            margin-top: 8px;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .value-badge {
+            display: inline-block;
+            padding: 6px 12px;
+            margin: 4px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        }
+        
+        .most-badge {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+        
+        .least-badge {
+            background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%);
+            color: #721c24;
+            border: 2px solid #dc3545;
+        }
+        
+        .interpretation {
+            margin-top: 30px;
+            padding: 25px;
+            background: linear-gradient(135deg, #eef6fb 0%, #dceefb 100%);
+            border-radius: 12px;
+            border-left: 5px solid #3498db;
+            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.15);
+        }
+        
+        .interpretation h3 {
+            color: #2980b9;
+            margin-bottom: 18px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+        
+        .interpretation p {
+            line-height: 1.8;
+            margin-bottom: 12px;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 25px;
+            margin-bottom: 25px;
+            font-size: 15px;
+            padding: 15px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            justify-content: center;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+        
+        .legend-box {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+        
+        .legend-most {
+            background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+            border: 2.5px solid #28a745;
+        }
+        
+        .legend-least {
+            background: linear-gradient(135deg, #f8d7da 0%, #f1b0b7 100%);
+            border: 2.5px solid #dc3545;
+        }
+
+        .circular-model {
+            margin: 35px auto;
+            text-align: center;
+            padding: 25px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+        
+        .circular-model h3 {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 25px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        
+        .circle-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            aspect-ratio: 1;
+        }
+        
+        .circle-svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .value-segment {
+            transition: opacity 0.3s ease;
+        }
+        
+        .segment-label {
+            font-weight: 600;
+            font-size: 14px;
+            fill: #333;
+            pointer-events: none;
+        }
+        
+        .score-indicator {
+            font-size: 20px;
+            font-weight: 700;
+        }
+        
+        .positive-score {
+            fill: #28a745;
+        }
+        
+        .negative-score {
+            fill: #dc3545;
+        }
+        
+        .neutral-score {
+            fill: #999;
+        }
+        
+        .dimension-label {
+            font-size: 16px;
+            font-weight: 700;
+            fill: #444;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .dimension-line {
+            stroke: #666;
+            stroke-width: 2;
+            stroke-dasharray: 5, 5;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .values-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .button-container {
+                flex-direction: column;
+            }
+            
+            .circle-container {
+                max-width: 350px;
+            }
+            
+            .segment-label {
+                font-size: 11px;
+            }
+            
+            .score-indicator {
+                font-size: 16px;
+            }
+            
+            .dimension-label {
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Schwartz Personal Values Exercise</h1>
+        
+        <div class="instructions">
+            <p><strong>Step 1:</strong> Select <strong>THREE (3)</strong> values that are <strong>MOST important</strong> to you personally.</p>
+            <p><strong>Step 2:</strong> Then select <strong>THREE (3)</strong> values that are <strong>LEAST important</strong> to you personally.</p>
+            <p><strong>Step 3:</strong> Click "See My Results" to discover your value profile!</p>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-box legend-most"></div>
+                <span>Most Important</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-box legend-least"></div>
+                <span>Least Important</span>
+            </div>
+        </div>
+        
+        <div class="progress" id="progress">
+            Most Important: 0/3 selected | Least Important: 0/3 selected
+        </div>
+        
+        <div class="values-grid" id="valuesGrid"></div>
+        
+        <div class="button-container">
+            <button class="reset-btn" onclick="resetSelection()">Reset Selection</button>
+            <button class="submit-btn" id="submitBtn" onclick="showResults()" disabled>See My Results</button>
+        </div>
+        
+        <div id="results"></div>
+    </div>
+
+    <script>
+        const valueCategories = {
+            'POWER': ['authority', 'preserving my public image', 'social power', 'wealth'],
+            'ACHIEVEMENT': ['ambitious', 'capable', 'influential', 'successful'],
+            'HEDONISM': ['enjoying life', 'pleasure', 'self-indulgent'],
+            'STIMULATION': ['a varied life', 'an exciting life', 'daring'],
+            'SELF-DIRECTION': ['choosing own goals', 'creativity', 'curious', 'freedom', 'independent'],
+            'UNIVERSALISM': ['a world of beauty', 'broadminded', 'equality', 'protecting the environment', 'social justice', 'unity with nature', 'wisdom'],
+            'BENEVOLENCE': ['forgiving', 'helpful', 'honest', 'loyal', 'responsible'],
+            'TRADITION': ['devout', 'humble', 'moderate', 'respect for tradition'],
+            'CONFORMITY': ['honoring parents and elders', 'obedience', 'politeness', 'self-discipline'],
+            'SECURITY': ['clean', 'family security', 'national security', 'reciprocation of favors', 'social order']
+        };
+
+        const continuum = {
+            'power-achievement': 'social superiority and esteem',
+            'achievement-hedonism': 'self-centered satisfaction',
+            'hedonism-stimulation': 'a desire for affectively pleasant arousal',
+            'stimulation-self-direction': 'intrinsic interest in novelty and mastery',
+            'self-direction-universalism': 'reliance upon one\'s own judgment and comfort with the diversity of existence',
+            'universalism-benevolence': 'enhancement of others and transcendence of selfish interests',
+            'benevolence-tradition': 'devotion to one\'s in-group',
+            'benevolence-conformity': 'normative behavior that promotes close relationships',
+            'conformity-tradition': 'subordination of self in favor of socially imposed expectations',
+            'tradition-security': 'preserving existing social arrangements that give certainty to life',
+            'conformity-security': 'protection of order and harmony in relations',
+            'security-power': 'avoiding or overcoming threats by controlling relationships and resources'
+        };
+
+        const allValues = [
+            'a varied life', 'a world of beauty', 'ambitious', 'an exciting life',
+            'authority', 'broadminded', 'capable', 'choosing own goals',
+            'clean', 'creativity', 'curious', 'daring',
+            'devout', 'enjoying life', 'equality', 'family security',
+            'forgiving', 'freedom', 'helpful', 'honest',
+            'honoring parents and elders', 'humble', 'independent', 'influential',
+            'loyal', 'moderate', 'national security', 'obedience',
+            'pleasure', 'politeness', 'preserving my public image', 'protecting the environment',
+            'reciprocation of favors', 'respect for tradition', 'responsible', 'self-discipline',
+            'self-indulgent', 'social justice', 'social order', 'social power',
+            'successful', 'unity with nature', 'wealth', 'wisdom'
+        ];
+
+        let mostImportant = [];
+        let leastImportant = [];
+
+        function initializeGrid() {
+            const grid = document.getElementById('valuesGrid');
+            allValues.forEach(value => {
+                const div = document.createElement('div');
+                div.className = 'value-item';
+                div.textContent = value;
+                div.onclick = () => toggleValue(value, div);
+                grid.appendChild(div);
+            });
+        }
+
+        function toggleValue(value, element) {
+            if (element.classList.contains('disabled')) return;
+
+            if (element.classList.contains('most-important')) {
+                mostImportant = mostImportant.filter(v => v !== value);
+                element.classList.remove('most-important');
+            } else if (element.classList.contains('least-important')) {
+                leastImportant = leastImportant.filter(v => v !== value);
+                element.classList.remove('least-important');
+            } else if (mostImportant.length < 3) {
+                mostImportant.push(value);
+                element.classList.add('most-important');
+            } else if (leastImportant.length < 3) {
+                leastImportant.push(value);
+                element.classList.add('least-important');
+            }
+
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('progress').textContent = 
+                `Most Important: ${mostImportant.length}/3 selected | Least Important: ${leastImportant.length}/3 selected`;
+
+            const allSelected = [...mostImportant, ...leastImportant];
+            const items = document.querySelectorAll('.value-item');
+            
+            items.forEach(item => {
+                const value = item.textContent;
+                const isSelected = allSelected.includes(value);
+                
+                // Only disable unselected items if both categories are full
+                if (!isSelected && mostImportant.length >= 3 && leastImportant.length >= 3) {
+                    item.classList.add('disabled');
+                } else if (!isSelected) {
+                    item.classList.remove('disabled');
+                }
+            });
+
+            document.getElementById('submitBtn').disabled = 
+                !(mostImportant.length === 3 && leastImportant.length === 3);
+        }
+
+        function resetSelection() {
+            mostImportant = [];
+            leastImportant = [];
+            document.querySelectorAll('.value-item').forEach(item => {
+                item.classList.remove('most-important', 'least-important', 'disabled');
+            });
+            document.getElementById('results').innerHTML = '';
+            updateUI();
+        }
+
+        function getCategoryForValue(value) {
+            for (const [category, values] of Object.entries(valueCategories)) {
+                if (values.includes(value)) {
+                    return category;
+                }
+            }
+            return null;
+        }
+
+        function showResults() {
+            const mostCategories = {};
+            const leastCategories = {};
+
+            mostImportant.forEach(value => {
+                const category = getCategoryForValue(value);
+                if (category) {
+                    if (!mostCategories[category]) mostCategories[category] = [];
+                    mostCategories[category].push(value);
+                }
+            });
+
+            leastImportant.forEach(value => {
+                const category = getCategoryForValue(value);
+                if (category) {
+                    if (!leastCategories[category]) leastCategories[category] = [];
+                    leastCategories[category].push(value);
+                }
+            });
+
+            let resultsHTML = '<div class="results"><h2>Your Personal Values Profile</h2>';
+
+            const allCategories = new Set([...Object.keys(mostCategories), ...Object.keys(leastCategories)]);
+            
+            allCategories.forEach(category => {
+                const mostVals = mostCategories[category] || [];
+                const leastVals = leastCategories[category] || [];
+                
+                if (mostVals.length > 0 || leastVals.length > 0) {
+                    resultsHTML += `<div class="category-result">
+                        <div class="category-name">${category}</div>
+                        <div class="category-values">`;
+                    
+                    if (mostVals.length > 0) {
+                        resultsHTML += `<div style="margin-bottom: 5px;"><strong>Most Important:</strong> `;
+                        mostVals.forEach(val => {
+                            resultsHTML += `<span class="value-badge most-badge">${val}</span>`;
+                        });
+                        resultsHTML += `</div>`;
+                    }
+                    
+                    if (leastVals.length > 0) {
+                        resultsHTML += `<div><strong>Least Important:</strong> `;
+                        leastVals.forEach(val => {
+                            resultsHTML += `<span class="value-badge least-badge">${val}</span>`;
+                        });
+                        resultsHTML += `</div>`;
+                    }
+                    
+                    resultsHTML += `</div></div>`;
+                }
+            });
+
+            resultsHTML += generateCircularModel(mostCategories, leastCategories);
+            resultsHTML += generateInterpretation(mostCategories, leastCategories);
+            resultsHTML += '</div>';
+
+            document.getElementById('results').innerHTML = resultsHTML;
+            document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function generateCircularModel(mostCategories, leastCategories) {
+            // Calculate scores for each category (most important = +1, least important = -1 per value)
+            const categoryScores = {};
+            const categoryOrder = [
+                'SELF-DIRECTION', 'UNIVERSALISM', 'BENEVOLENCE', 'CONFORMITY', 'TRADITION',
+                'SECURITY', 'POWER', 'ACHIEVEMENT', 'HEDONISM', 'STIMULATION'
+            ];
+            
+            categoryOrder.forEach(cat => {
+                const mostCount = (mostCategories[cat] || []).length;
+                const leastCount = (leastCategories[cat] || []).length;
+                categoryScores[cat] = mostCount - leastCount;
+            });
+            
+            const colors = {
+                'SELF-DIRECTION': '#a8e6cf',
+                'UNIVERSALISM': '#7fc8a9',
+                'BENEVOLENCE': '#56ab91',
+                'CONFORMITY': '#b39cd0',
+                'TRADITION': '#9b72cf',
+                'SECURITY': '#8e7cc3',
+                'POWER': '#ffaaa5',
+                'ACHIEVEMENT': '#ff8b94',
+                'HEDONISM': '#ffd3b6',
+                'STIMULATION': '#ffec99'
+            };
+            
+            let html = '<div class="circular-model">';
+            html += '<h3>Your Values on the Schwartz Circular Model</h3>';
+            html += '<div class="circle-container">';
+            html += '<svg class="circle-svg" viewBox="-250 -250 500 500">';
+            
+            const numSegments = 10;
+            const anglePerSegment = (2 * Math.PI) / numSegments;
+            const radius = 200;
+            const labelRadius = 160;
+            
+            // Draw segments
+            categoryOrder.forEach((category, index) => {
+                const startAngle = index * anglePerSegment - Math.PI / 2;
+                const endAngle = (index + 1) * anglePerSegment - Math.PI / 2;
+                
+                const x1 = 0;
+                const y1 = 0;
+                const x2 = radius * Math.cos(startAngle);
+                const y2 = radius * Math.sin(startAngle);
+                const x3 = radius * Math.cos(endAngle);
+                const y3 = radius * Math.sin(endAngle);
+                
+                const largeArcFlag = 0;
+                
+                const score = categoryScores[category];
+                let opacity = 0.3;
+                if (score > 0) opacity = 0.5 + (score * 0.25); // More important = more opaque
+                if (score < 0) opacity = 0.2; // Less important = more transparent
+                
+                const pathD = `M ${x1},${y1} L ${x2},${y2} A ${radius},${radius} 0 ${largeArcFlag} 1 ${x3},${y3} Z`;
+                
+                html += `<path d="${pathD}" fill="${colors[category]}" stroke="#fff" stroke-width="2" opacity="${opacity}" class="value-segment"/>`;
+            });
+            
+            // Draw labels and scores
+            categoryOrder.forEach((category, index) => {
+                const angle = (index + 0.5) * anglePerSegment - Math.PI / 2;
+                const x = labelRadius * Math.cos(angle);
+                const y = labelRadius * Math.sin(angle);
+                
+                const score = categoryScores[category];
+                const displayText = category.replace(/-/g, '-\n');
+                
+                // Category label
+                html += `<text x="${x}" y="${y}" class="segment-label" text-anchor="middle" dominant-baseline="middle">`;
+                const words = category.split('-');
+                words.forEach((word, i) => {
+                    html += `<tspan x="${x}" dy="${i === 0 ? 0 : '1.2em'}">${word}</tspan>`;
+                });
+                html += `</text>`;
+                
+                // Score indicator
+                if (score !== 0) {
+                    const scoreRadius = 80;
+                    const scoreX = scoreRadius * Math.cos(angle);
+                    const scoreY = scoreRadius * Math.sin(angle);
+                    
+                    let scoreClass = 'neutral-score';
+                    let scoreText = '';
+                    if (score > 0) {
+                        scoreClass = 'positive-score';
+                        scoreText = '+' + score;
+                    } else if (score < 0) {
+                        scoreClass = 'negative-score';
+                        scoreText = score.toString();
+                    }
+                    
+                    html += `<text x="${scoreX}" y="${scoreY}" class="score-indicator ${scoreClass}" text-anchor="middle" dominant-baseline="middle">${scoreText}</text>`;
+                }
+            });
+            
+            html += '</svg>';
+            html += '</div>';
+            
+            html += '<div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 10px; font-size: 14px; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">';
+            html += '<p style="font-weight: 700; color: #2c3e50; margin-bottom: 12px;">How to read this diagram:</p>';
+            html += '<ul style="text-align: left; margin-top: 10px; line-height: 2;">';
+            html += '<li><span style="color: #28a745; font-weight: 700;">Green numbers (+)</span> show value categories where you selected most important values</li>';
+            html += '<li><span style="color: #dc3545; font-weight: 700;">Red numbers (−)</span> show value categories where you selected least important values</li>';
+            html += '<li><strong>Segment opacity</strong> indicates emphasis: darker segments are more important to you</li>';
+            html += '<li><strong>Adjacent values</strong> share similar motivations; <strong>opposing values</strong> (across the circle) represent conflicting motivations</li>';
+            html += '</ul>';
+            html += '</div>';
+            
+            html += '</div>';
+            
+            return html;
+        }
+
+        function generateInterpretation(mostCategories, leastCategories) {
+            const categoryOrder = ['POWER', 'ACHIEVEMENT', 'HEDONISM', 'STIMULATION', 'SELF-DIRECTION', 
+                                   'UNIVERSALISM', 'BENEVOLENCE', 'CONFORMITY', 'TRADITION', 'SECURITY'];
+            
+            let interpretation = '<div class="interpretation"><h3>Understanding Your Values</h3>';
+            
+            const topCategories = Object.entries(mostCategories)
+                .sort((a, b) => b[1].length - a[1].length)
+                .slice(0, 2)
+                .map(([cat]) => cat);
+            
+            if (topCategories.length > 0) {
+                interpretation += `<p><strong>Your strongest value orientation${topCategories.length > 1 ? 's are' : ' is'}:</strong> ${topCategories.join(' and ')}.`;
+                
+                if (topCategories.length === 2) {
+                    const continuumKey = findContinuumConnection(topCategories[0], topCategories[1]);
+                    if (continuumKey) {
+                        interpretation += ` These adjacent values share an emphasis on <em>${continuum[continuumKey]}</em>.`;
+                    }
+                }
+                interpretation += `</p>`;
+            }
+
+            const bottomCategories = Object.entries(leastCategories)
+                .sort((a, b) => b[1].length - a[1].length)
+                .slice(0, 2)
+                .map(([cat]) => cat);
+            
+            if (bottomCategories.length > 0) {
+                interpretation += `<p><strong>You place less emphasis on:</strong> ${bottomCategories.join(' and ')}.</p>`;
+            }
+
+            if (topCategories.length > 0 && bottomCategories.length > 0) {
+                const opposition = checkOpposition(topCategories[0], bottomCategories[0], categoryOrder);
+                if (opposition) {
+                    interpretation += `<p><strong>Value Tension:</strong> Your emphasis on ${topCategories[0]} and de-emphasis on ${bottomCategories[0]} reflects ${opposition}</p>`;
+                }
+            }
+
+            interpretation += `<p style="margin-top: 15px; font-size: 13px; color: #666;"><em>Note: The closer values are on Schwartz's circular model, the more similar their underlying motivations. Values across from each other represent conflicting motivations.</em></p>`;
+            
+            interpretation += '</div>';
+            return interpretation;
+        }
+
+        function findContinuumConnection(cat1, cat2) {
+            const key1 = `${cat1.toLowerCase()}-${cat2.toLowerCase()}`;
+            const key2 = `${cat2.toLowerCase()}-${cat1.toLowerCase()}`;
+            return continuum[key1] || continuum[key2] || null;
+        }
+
+        function checkOpposition(topCat, bottomCat, categoryOrder) {
+            const idx1 = categoryOrder.indexOf(topCat);
+            const idx2 = categoryOrder.indexOf(bottomCat);
+            
+            if (idx1 === -1 || idx2 === -1) return null;
+            
+            const distance = Math.abs(idx1 - idx2);
+            const circularDistance = Math.min(distance, categoryOrder.length - distance);
+            
+            if (circularDistance >= 4) {
+                return 'opposing motivational goals on the values continuum.';
+            }
+            return null;
+        }
+
+        initializeGrid();
+    </script>
+</body>
+</html>
